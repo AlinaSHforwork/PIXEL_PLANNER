@@ -1,6 +1,6 @@
 // server/server.js
 const express = require('express');
-const mongoose = require('mongoose');
+const knex = require('knex');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 
@@ -12,15 +12,13 @@ app.use(express.json());
 app.use(cors());
 
 // Database connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.error(err));
+const db = knex({
+  client: 'pg',
+  connection: process.env.DATABASE_URL, // Render provides this env variable
+});
 
-// Routes
-app.use('/api/auth', authRoutes);
+// Pass the db connection to your routes
+app.use('/api/auth', authRoutes(db));
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
