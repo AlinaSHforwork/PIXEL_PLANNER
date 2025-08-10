@@ -13,3 +13,28 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// User model for your authentication
+model User {
+  id       Int      @id @default(autoincrement())
+  username String   @unique
+  password String
+  todos    Todo[]
+}
+
+// Todo model for your tasks, linked to the User
+model Todo {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now())
+  user_id     Int
+  task        String
+  is_complete Boolean  @default(false)
+  due_date    DateTime?
+  tags        String[]
+  pomodoro_count Int    @default(0)
+
+  // This links the Todo back to the User.
+  user        User     @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+}
